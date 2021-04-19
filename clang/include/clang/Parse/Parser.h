@@ -1475,9 +1475,10 @@ private:
 
     ParsedTemplateInfo(TemplateParameterLists *TemplateParams,
                        bool isSpecialization,
+                       SourceLocation VirtualLoc,
                        bool lastParameterListWasEmpty = false)
       : Kind(isSpecialization? ExplicitSpecialization : Template),
-        TemplateParams(TemplateParams),
+        TemplateParams(TemplateParams), VirtualLoc(VirtualLoc),
         LastParameterListWasEmpty(lastParameterListWasEmpty) { }
 
     explicit ParsedTemplateInfo(SourceLocation ExternLoc,
@@ -1505,6 +1506,9 @@ private:
     /// The location of the 'extern' keyword, if any, for an explicit
     /// instantiation
     SourceLocation ExternLoc;
+
+    /// The location of the 'virtual' keyword, if any
+    SourceLocation VirtualLoc;
 
     /// The location of the 'template' keyword, for an explicit
     /// instantiation.

@@ -36,15 +36,16 @@ unsigned Parser::ReenterTemplateScopes(MultiParseScope &S, Decl *D) {
 /// explicit specialization.
 Decl *Parser::ParseDeclarationStartingWithTemplate(
     DeclaratorContext Context, SourceLocation &DeclEnd,
-    ParsedAttributes &AccessAttrs, AccessSpecifier AS) {
+    ParsedAttributes &AccessAttrs, AccessSpecifier AS,
+    bool IsVirtual) {
   ObjCDeclContextSwitch ObjCDC(*this);
 
   if (Tok.is(tok::kw_template) && NextToken().isNot(tok::less)) {
     return ParseExplicitInstantiation(Context, SourceLocation(), ConsumeToken(),
-                                      DeclEnd, AccessAttrs, AS);
+                                      DeclEnd, AccessAttrs, AS, IsVirtual);
   }
   return ParseTemplateDeclarationOrSpecialization(Context, DeclEnd, AccessAttrs,
-                                                  AS);
+                                                  AS, IsVirtual);
 }
 
 /// Parse a template declaration or an explicit specialization.
@@ -74,7 +75,7 @@ Decl *Parser::ParseDeclarationStartingWithTemplate(
 Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     DeclaratorContext Context, SourceLocation &DeclEnd,
     ParsedAttributes &AccessAttrs, AccessSpecifier AS) {
-  assert(Tok.isOneOf(tok::kw_export, tok::kw_template) &&
+  assert(Tok.isOneOf(tok::kw_export, tok::kw_template, tok::kw_virtual) &&
          "Token does not start a template declaration.");
 
   MultiParseScope TemplateParamScopes(*this);
@@ -106,6 +107,7 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
   // (and retrieves the outer template parameter list from its
   // context).
   bool isSpecialization = true;
+  SourceLocation VirtualLoc;
   bool LastParamListWasEmpty = false;
   TemplateParameterLists ParamLists;
   TemplateParameterDepthRAII CurTemplateDepthTracker(TemplateParameterDepth);
@@ -114,6 +116,9 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     // Consume the 'export', if any.
     SourceLocation ExportLoc;
     TryConsumeToken(tok::kw_export, ExportLoc);
+
+    // Consume the 'virtual', if any.
+    TryConsumeToken(tok::kw_virtual, VirtualLoc);
 
     // Consume the 'template', which should be here.
     SourceLocation TemplateLoc;
@@ -157,18 +162,19 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     ParamLists.push_back(Actions.ActOnTemplateParameterList(
         CurTemplateDepthTracker.getDepth(), ExportLoc, TemplateLoc, LAngleLoc,
         TemplateParams, RAngleLoc, OptionalRequiresClauseConstraintER.get()));
-  } while (Tok.isOneOf(tok::kw_export, tok::kw_template));
+  } while (Tok.isOneOf(tok::kw_export, tok::kw_virtual, tok::kw_template));
 
   // Parse the actual template declaration.
   if (Tok.is(tok::kw_concept))
     return ParseConceptDefinition(
-        ParsedTemplateInfo(&ParamLists, isSpecialization,
+        ParsedTemplateInfo(&ParamLists, isSpecialization, VirtualLoc,
                            LastParamListWasEmpty),
         DeclEnd);
 
   return ParseSingleDeclarationAfterTemplate(
       Context,
-      ParsedTemplateInfo(&ParamLists, isSpecialization, LastParamListWasEmpty),
+      ParsedTemplateInfo(&ParamLists, isSpecialization, VirtualLoc,
+                         LastParamListWasEmpty),
       ParsingTemplateParams, DeclEnd, AccessAttrs, AS);
 }
 
@@ -318,6 +324,7 @@ Decl *Parser::ParseSingleDeclarationAfterTemplate(
         return ParseFunctionDefinition(
             DeclaratorInfo, ParsedTemplateInfo(&FakedParamLists,
                                                /*isSpecialization=*/true,
+                                               VirtualLoc,
                                                /*lastParameterListWasEmpty=*/true),
             &LateParsedAttrs);
       }
@@ -1595,17 +1602,19 @@ Parser::ParseTemplateArgumentList(TemplateArgList &TemplateArgs) {
 /// Note that the 'extern' is a GNU extension and C++11 feature.
 Decl *Parser::ParseExplicitInstantiation(DeclaratorContext Context,
                                          SourceLocation ExternLoc,
+                                         SourceLocation VirtualLoc,
                                          SourceLocation TemplateLoc,
                                          SourceLocation &DeclEnd,
                                          ParsedAttributes &AccessAttrs,
-                                         AccessSpecifier AS) {
+                                         AccessSpecifier AS, 
+                                         bool IsVirtual) {
   // This isn't really required here.
   ParsingDeclRAIIObject
     ParsingTemplateParams(*this, ParsingDeclRAIIObject::NoParent);
 
   return ParseSingleDeclarationAfterTemplate(
       Context, ParsedTemplateInfo(ExternLoc, TemplateLoc),
-      ParsingTemplateParams, DeclEnd, AccessAttrs, AS);
+      ParsingTemplateParams, DeclEnd, AccessAttrs, AS, IsVirtual);
 }
 
 SourceRange Parser::ParsedTemplateInfo::getSourceRange() const {

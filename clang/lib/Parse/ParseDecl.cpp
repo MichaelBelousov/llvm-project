@@ -1708,7 +1708,7 @@ Parser::ParseDeclaration(DeclaratorContext Context, SourceLocation &DeclEnd,
   case tok::kw_template:
   case tok::kw_export:
     ProhibitAttributes(attrs);
-    SingleDecl = ParseDeclarationStartingWithTemplate(Context, DeclEnd, attrs);
+    SingleDecl = ParseDeclarationStartingWithTemplate(Context, DeclEnd, attrs, false);
     break;
   case tok::kw_inline:
     // Could be the start of an inline namespace. Allowed as an ext in C++03.
@@ -2267,7 +2267,7 @@ Decl *Parser::ParseDeclarationAfterDeclaratorAndAttributes(
   case ParsedTemplateInfo::ExplicitSpecialization: {
     ThisDecl = Actions.ActOnTemplateDeclarator(getCurScope(),
                                                *TemplateInfo.TemplateParams,
-                                               D);
+                                               D, IsVirtual);
     if (VarTemplateDecl *VT = dyn_cast_or_null<VarTemplateDecl>(ThisDecl)) {
       // Re-direct this decl to refer to the templated decl so that we can
       // initialize it.
@@ -3674,16 +3674,21 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
       isInvalid = DS.setFunctionSpecInline(Loc, PrevSpec, DiagID);
       break;
     case tok::kw_virtual:
-      // C++ for OpenCL does not allow virtual function qualifier, to avoid
-      // function pointers restricted in OpenCL v2.0 s6.9.a.
-      if (getLangOpts().OpenCLCPlusPlus &&
-          !getActions().getOpenCLOptions().isAvailableOption(
-              "__cl_clang_function_pointers", getLangOpts())) {
-        DiagID = diag::err_openclcxx_virtual_function;
-        PrevSpec = Tok.getIdentifierInfo()->getNameStart();
-        isInvalid = true;
+      if (NextToken().is(tok::kw_template)) {
+        ProhibitAttributes(attrs);
+        SingleDecl = ParseDeclarationStartingWithTemplate(Context, DeclEnd, attrs, true);
       } else {
-        isInvalid = DS.setFunctionSpecVirtual(Loc, PrevSpec, DiagID);
+        // C++ for OpenCL does not allow virtual function qualifier, to avoid
+        // function pointers restricted in OpenCL v2.0 s6.9.a.
+        if (getLangOpts().OpenCLCPlusPlus &&
+            !getActions().getOpenCLOptions().isAvailableOption(
+                "__cl_clang_function_pointers", getLangOpts())) {
+          DiagID = diag::err_openclcxx_virtual_function;
+          PrevSpec = Tok.getIdentifierInfo()->getNameStart();
+          isInvalid = true;
+        } else {
+          isInvalid = DS.setFunctionSpecVirtual(Loc, PrevSpec, DiagID);
+        }
       }
       break;
     case tok::kw_explicit: {

@@ -1695,7 +1695,8 @@ DeclResult Sema::CheckClassTemplate(
     const ParsedAttributesView &Attr, TemplateParameterList *TemplateParams,
     AccessSpecifier AS, SourceLocation ModulePrivateLoc,
     SourceLocation FriendLoc, unsigned NumOuterTemplateParamLists,
-    TemplateParameterList **OuterTemplateParamLists, SkipBodyInfo *SkipBody) {
+    TemplateParameterList **OuterTemplateParamLists, SkipBodyInfo *SkipBody,
+    bool IsVirtual) {
   assert(TemplateParams && TemplateParams->size() > 0 &&
          "No template parameters");
   assert(TUK != TUK_Reference && "Can only declare or define class templates");
@@ -1972,7 +1973,7 @@ DeclResult Sema::CheckClassTemplate(
   ClassTemplateDecl *NewTemplate
     = ClassTemplateDecl::Create(Context, SemanticContext, NameLoc,
                                 DeclarationName(Name), TemplateParams,
-                                NewClass);
+                                NewClass, IsVirtual);
 
   if (ShouldAddRedecl)
     NewTemplate->setPreviousDecl(PrevClassTemplate);
@@ -8206,7 +8207,8 @@ DeclResult Sema::ActOnClassTemplateSpecialization(
     Scope *S, unsigned TagSpec, TagUseKind TUK, SourceLocation KWLoc,
     SourceLocation ModulePrivateLoc, CXXScopeSpec &SS,
     TemplateIdAnnotation &TemplateId, const ParsedAttributesView &Attr,
-    MultiTemplateParamsArg TemplateParameterLists, SkipBodyInfo *SkipBody) {
+    MultiTemplateParamsArg TemplateParameterLists, SkipBodyInfo *SkipBody,
+    bool IsVirtual) {
   assert(TUK != TUK_Reference && "References are not specializations");
 
   // NOTE: KWLoc is the location of the tag keyword. This will instead
