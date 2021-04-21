@@ -401,7 +401,7 @@ class TemplateDecl : public NamedDecl {
 protected:
   // Construct a template decl with name, parameters, and templated element.
   TemplateDecl(Kind DK, DeclContext *DC, SourceLocation L, DeclarationName Name,
-               TemplateParameterList *Params, NamedDecl *Decl, bool IsVirt);
+               TemplateParameterList *Params, NamedDecl *Decl);
 
   // Construct a template decl with the given name and parameters.
   // Used when there is no templated element (e.g., for tt-params).
@@ -429,9 +429,6 @@ public:
   /// Get the underlying, templated declaration.
   NamedDecl *getTemplatedDecl() const { return TemplatedDecl; }
 
-  /// Get whether this is a virtual template
-  NamedDecl *getIsVirtual() const { return IsVirtual; }
-
   // Implement isa/cast/dyncast/etc.
   static bool classof(const Decl *D) { return classofKind(D->getKind()); }
 
@@ -447,7 +444,6 @@ public:
 protected:
   NamedDecl *TemplatedDecl;
   TemplateParameterList *TemplateParams;
-  bool *IsVirtual;
 
   void setTemplateParameters(TemplateParameterList *TParams) {
     TemplateParams = TParams;
@@ -850,10 +846,8 @@ protected:
   // Construct a template decl with name, parameters, and templated element.
   RedeclarableTemplateDecl(Kind DK, ASTContext &C, DeclContext *DC,
                            SourceLocation L, DeclarationName Name,
-                           TemplateParameterList *Params, NamedDecl *Decl,
-                           bool IsVirt)
-      : TemplateDecl(DK, DC, L, Name, Params, Decl, IsVirt)
-      , redeclarable_base(C) {}
+                           TemplateParameterList *Params, NamedDecl *Decl)
+      : TemplateDecl(DK, DC, L, Name, Params, Decl), redeclarable_base(C) {}
 
 public:
   friend class ASTDeclReader;
@@ -2276,8 +2270,8 @@ protected:
 
   ClassTemplateDecl(ASTContext &C, DeclContext *DC, SourceLocation L,
                     DeclarationName Name, TemplateParameterList *Params,
-                    NamedDecl *Decl, bool IsVirt)
-      : RedeclarableTemplateDecl(ClassTemplate, C, DC, L, Name, Params, Decl, IsVirt) {}
+                    NamedDecl *Decl)
+      : RedeclarableTemplateDecl(ClassTemplate, C, DC, L, Name, Params, Decl) {}
 
   CommonBase *newCommon(ASTContext &C) const override;
 
@@ -2308,8 +2302,7 @@ public:
                                    SourceLocation L,
                                    DeclarationName Name,
                                    TemplateParameterList *Params,
-                                   NamedDecl *Decl,
-                                   bool IsVirt);
+                                   NamedDecl *Decl);
 
   /// Create an empty class template node.
   static ClassTemplateDecl *CreateDeserialized(ASTContext &C, unsigned ID);

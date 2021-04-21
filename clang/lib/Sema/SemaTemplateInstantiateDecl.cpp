@@ -1577,8 +1577,7 @@ Decl *TemplateDeclInstantiator::VisitClassTemplateDecl(ClassTemplateDecl *D) {
 
   ClassTemplateDecl *Inst
     = ClassTemplateDecl::Create(SemaRef.Context, DC, D->getLocation(),
-                                D->getIdentifier(), InstParams, RecordInst,
-                                D->getIsVirtual());
+                                D->getIdentifier(), InstParams, RecordInst);
   assert(!(isFriend && Owner->isDependentContext()));
   Inst->setPreviousDecl(PrevClassTemplate);
 

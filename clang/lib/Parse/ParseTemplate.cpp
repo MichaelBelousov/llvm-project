@@ -36,16 +36,15 @@ unsigned Parser::ReenterTemplateScopes(MultiParseScope &S, Decl *D) {
 /// explicit specialization.
 Decl *Parser::ParseDeclarationStartingWithTemplate(
     DeclaratorContext Context, SourceLocation &DeclEnd,
-    ParsedAttributes &AccessAttrs, AccessSpecifier AS,
-    bool IsVirtual) {
+    ParsedAttributes &AccessAttrs, AccessSpecifier AS) {
   ObjCDeclContextSwitch ObjCDC(*this);
 
   if (Tok.is(tok::kw_template) && NextToken().isNot(tok::less)) {
     return ParseExplicitInstantiation(Context, SourceLocation(), ConsumeToken(),
-                                      DeclEnd, AccessAttrs, AS, IsVirtual);
+                                      DeclEnd, AccessAttrs, AS);
   }
   return ParseTemplateDeclarationOrSpecialization(Context, DeclEnd, AccessAttrs,
-                                                  AS, IsVirtual);
+                                                  AS);
 }
 
 /// Parse a template declaration or an explicit specialization.
@@ -107,7 +106,6 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
   // (and retrieves the outer template parameter list from its
   // context).
   bool isSpecialization = true;
-  SourceLocation VirtualLoc;
   bool LastParamListWasEmpty = false;
   TemplateParameterLists ParamLists;
   TemplateParameterDepthRAII CurTemplateDepthTracker(TemplateParameterDepth);
@@ -118,7 +116,7 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     TryConsumeToken(tok::kw_export, ExportLoc);
 
     // Consume the 'virtual', if any.
-    TryConsumeToken(tok::kw_virtual, VirtualLoc);
+    TryConsumeToken(tok::kw_virtual, ParamLists[0].VirtualLoc);
 
     // Consume the 'template', which should be here.
     SourceLocation TemplateLoc;
@@ -162,19 +160,18 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     ParamLists.push_back(Actions.ActOnTemplateParameterList(
         CurTemplateDepthTracker.getDepth(), ExportLoc, TemplateLoc, LAngleLoc,
         TemplateParams, RAngleLoc, OptionalRequiresClauseConstraintER.get()));
-  } while (Tok.isOneOf(tok::kw_export, tok::kw_virtual, tok::kw_template));
+  } while (Tok.isOneOf(tok::kw_export, tok::kw_template));
 
   // Parse the actual template declaration.
   if (Tok.is(tok::kw_concept))
     return ParseConceptDefinition(
-        ParsedTemplateInfo(&ParamLists, isSpecialization, VirtualLoc,
+        ParsedTemplateInfo(&ParamLists, isSpecialization,
                            LastParamListWasEmpty),
         DeclEnd);
 
   return ParseSingleDeclarationAfterTemplate(
       Context,
-      ParsedTemplateInfo(&ParamLists, isSpecialization, VirtualLoc,
-                         LastParamListWasEmpty),
+      ParsedTemplateInfo(&ParamLists, isSpecialization, LastParamListWasEmpty),
       ParsingTemplateParams, DeclEnd, AccessAttrs, AS);
 }
 
@@ -324,7 +321,6 @@ Decl *Parser::ParseSingleDeclarationAfterTemplate(
         return ParseFunctionDefinition(
             DeclaratorInfo, ParsedTemplateInfo(&FakedParamLists,
                                                /*isSpecialization=*/true,
-                                               VirtualLoc,
                                                /*lastParameterListWasEmpty=*/true),
             &LateParsedAttrs);
       }
