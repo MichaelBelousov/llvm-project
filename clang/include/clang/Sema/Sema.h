@@ -7485,6 +7485,7 @@ public:
   TemplateParameterList *
   ActOnTemplateParameterList(unsigned Depth,
                              SourceLocation ExportLoc,
+                             SourceLocation VirtualLoc,
                              SourceLocation TemplateLoc,
                              SourceLocation LAngleLoc,
                              ArrayRef<NamedDecl *> Params,

@@ -115,8 +115,9 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     SourceLocation ExportLoc;
     TryConsumeToken(tok::kw_export, ExportLoc);
 
+    SourceLocation VirtualLoc;
     // Consume the 'virtual', if any.
-    TryConsumeToken(tok::kw_virtual, ParamLists[0].VirtualLoc);
+    TryConsumeToken(tok::kw_virtual, VirtualLoc);
 
     // Consume the 'template', which should be here.
     SourceLocation TemplateLoc;
@@ -158,9 +159,10 @@ Decl *Parser::ParseTemplateDeclarationOrSpecialization(
     }
 
     ParamLists.push_back(Actions.ActOnTemplateParameterList(
-        CurTemplateDepthTracker.getDepth(), ExportLoc, TemplateLoc, LAngleLoc,
+        CurTemplateDepthTracker.getDepth(), ExportLoc, VirtualLoc, TemplateLoc, LAngleLoc,
         TemplateParams, RAngleLoc, OptionalRequiresClauseConstraintER.get()));
-  } while (Tok.isOneOf(tok::kw_export, tok::kw_template));
+    //! XXX: this could be ambiguous with virtual member templates
+  } while (Tok.isOneOf(tok::kw_export, tok::kw_template, tok::kw_virtual));
 
   // Parse the actual template declaration.
   if (Tok.is(tok::kw_concept))
@@ -315,7 +317,7 @@ Decl *Parser::ParseSingleDeclarationAfterTemplate(
         // Recover as if it were an explicit specialization.
         TemplateParameterLists FakedParamLists;
         FakedParamLists.push_back(Actions.ActOnTemplateParameterList(
-            0, SourceLocation(), TemplateInfo.TemplateLoc, LAngleLoc, None,
+            0, SourceLocation(), SourceLocation(), TemplateInfo.TemplateLoc, LAngleLoc, None,
             LAngleLoc, nullptr));
 
         return ParseFunctionDefinition(
@@ -928,8 +930,8 @@ Parser::ParseTemplateTemplateParameter(unsigned Depth, unsigned Position) {
 
   TemplateParameterList *ParamList =
     Actions.ActOnTemplateParameterList(Depth, SourceLocation(),
-                                       TemplateLoc, LAngleLoc,
-                                       TemplateParams,
+                                       SourceLocation(), TemplateLoc
+                                       LAngleLoc, TemplateParams,
                                        RAngleLoc, nullptr);
 
   // Grab a default argument (if available).

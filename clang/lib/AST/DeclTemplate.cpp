@@ -45,13 +45,15 @@ using namespace clang;
 
 
 TemplateParameterList::TemplateParameterList(const ASTContext& C,
+                                             SourceLocation VirtualLoc,
                                              SourceLocation TemplateLoc,
                                              SourceLocation LAngleLoc,
                                              ArrayRef<NamedDecl *> Params,
                                              SourceLocation RAngleLoc,
                                              Expr *RequiresClause)
-    : TemplateLoc(TemplateLoc), LAngleLoc(LAngleLoc), RAngleLoc(RAngleLoc),
-      NumParams(Params.size()), ContainsUnexpandedParameterPack(false),
+    : VirtualLoc(VirtualLoc), TemplateLoc(TemplateLoc), LAngleLoc(LAngleLoc),
+      RAngleLoc(RAngleLoc), NumParams(Params.size()),
+      ContainsUnexpandedParameterPack(false),
       HasRequiresClause(RequiresClause != nullptr),
       HasConstrainedParameters(false) {
   for (unsigned Idx = 0; Idx < NumParams; ++Idx) {
@@ -87,15 +89,16 @@ TemplateParameterList::TemplateParameterList(const ASTContext& C,
 }
 
 TemplateParameterList *
-TemplateParameterList::Create(const ASTContext &C, SourceLocation TemplateLoc,
+TemplateParameterList::Create(const ASTContext &C, SourceLocation VirtualLoc,
+                              SourceLocation TemplateLoc,
                               SourceLocation LAngleLoc,
                               ArrayRef<NamedDecl *> Params,
                               SourceLocation RAngleLoc, Expr *RequiresClause) {
   void *Mem = C.Allocate(totalSizeToAlloc<NamedDecl *, Expr *>(
                              Params.size(), RequiresClause ? 1u : 0u),
                          alignof(TemplateParameterList));
-  return new (Mem) TemplateParameterList(C, TemplateLoc, LAngleLoc, Params,
-                                         RAngleLoc, RequiresClause);
+  return new (Mem) TemplateParameterList(C, VirtualLoc, TemplateLoc, LAngleLoc,
+                                        Params, RAngleLoc, RequiresClause);
 }
 
 unsigned TemplateParameterList::getMinRequiredArguments() const {

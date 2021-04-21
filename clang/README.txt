@@ -8,11 +8,8 @@ requires per-type indirection tables, a runtime indirection resulting in a
 performance penalty, a tradeoff for no longer needing instantions
 which is a size optimization)
 
-TODO:
-
-propagate:
-- ActOnCXXMemberDeclarator
-- ActOnStartOfFunctionDef
+In theory, it might be useful to mark individual parameters as virtual,
+so that only they require the redirection, but I'm not going to do that for the MVP
 
 //===----------------------------------------------------------------------===//
 // C Language Family Front-end

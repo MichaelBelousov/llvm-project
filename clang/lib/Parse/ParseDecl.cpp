@@ -2306,7 +2306,7 @@ Decl *Parser::ParseDeclarationAfterDeclaratorAndAttributes(
         // Recover as if it were an explicit specialization.
         TemplateParameterLists FakedParamLists;
         FakedParamLists.push_back(Actions.ActOnTemplateParameterList(
-            0, SourceLocation(), TemplateInfo.TemplateLoc, LAngleLoc, None,
+            0, SourceLocation(), SourceLocation(), TemplateInfo.TemplateLoc, LAngleLoc, None,
             LAngleLoc, nullptr));
 
         ThisDecl =

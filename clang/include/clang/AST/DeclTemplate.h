@@ -69,6 +69,9 @@ NamedDecl *getAsNamedDecl(TemplateParameter P);
 class TemplateParameterList final
     : private llvm::TrailingObjects<TemplateParameterList, NamedDecl *,
                                     Expr *> {
+  /// The location of the optional 'virtual' keyword.
+  SourceLocation VirtualLoc;
+
   /// The location of the 'template' keyword.
   SourceLocation TemplateLoc;
 
@@ -91,9 +94,10 @@ class TemplateParameterList final
   unsigned HasConstrainedParameters : 1;
 
 protected:
-  TemplateParameterList(const ASTContext& C, SourceLocation TemplateLoc,
-                        SourceLocation LAngleLoc, ArrayRef<NamedDecl *> Params,
-                        SourceLocation RAngleLoc, Expr *RequiresClause);
+  TemplateParameterList(const ASTContext& C, SourceLocation VirtualLoc,
+                        SourceLocation TemplateLoc, SourceLocation LAngleLoc,
+                        ArrayRef<NamedDecl *> Params, SourceLocation RAngleLoc,
+                        Expr *RequiresClause);
 
   size_t numTrailingObjects(OverloadToken<NamedDecl *>) const {
     return NumParams;
@@ -109,6 +113,7 @@ public:
   friend TrailingObjects;
 
   static TemplateParameterList *Create(const ASTContext &C,
+                                       SourceLocation VirtualLoc,
                                        SourceLocation TemplateLoc,
                                        SourceLocation LAngleLoc,
                                        ArrayRef<NamedDecl *> Params,
@@ -219,6 +224,7 @@ class FixedSizeTemplateParameterListStorage
 
 public:
   FixedSizeTemplateParameterListStorage(const ASTContext &C,
+                                        SourceLocation VirtualLoc,
                                         SourceLocation TemplateLoc,
                                         SourceLocation LAngleLoc,
                                         ArrayRef<NamedDecl *> Params,
@@ -228,7 +234,7 @@ public:
             (assert(N == Params.size()),
              assert(HasRequiresClause == (RequiresClause != nullptr)),
              new (static_cast<void *>(&storage)) TemplateParameterList(C,
-                 TemplateLoc, LAngleLoc, Params, RAngleLoc, RequiresClause))) {}
+                 VirtualLoc, TemplateLoc, LAngleLoc, Params, RAngleLoc, RequiresClause))) {}
 };
 
 /// A template argument list.

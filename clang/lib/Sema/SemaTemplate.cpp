@@ -1669,6 +1669,7 @@ NamedDecl *Sema::ActOnTemplateTemplateParameter(Scope* S,
 TemplateParameterList *
 Sema::ActOnTemplateParameterList(unsigned Depth,
                                  SourceLocation ExportLoc,
+                                 SourceLocation VirtualLoc,
                                  SourceLocation TemplateLoc,
                                  SourceLocation LAngleLoc,
                                  ArrayRef<NamedDecl *> Params,
@@ -1678,7 +1679,7 @@ Sema::ActOnTemplateParameterList(unsigned Depth,
     Diag(ExportLoc, diag::warn_template_export_unsupported);
 
   return TemplateParameterList::Create(
-      Context, TemplateLoc, LAngleLoc,
+      Context, VirtualLoc, TemplateLoc, LAngleLoc,
       llvm::makeArrayRef(Params.data(), Params.size()),
       RAngleLoc, RequiresClause);
 }
