@@ -1,4 +1,20 @@
 //===----------------------------------------------------------------------===//
+// Mike's prologue
+//===----------------------------------------------------------------------===//
+This a fork of clang testing a concept called "virtual templates"
+which is basically templates that can optionally be generics instead
+(so a virtual template is a template that doesn't get instantiated and instead
+requires per-type indirection tables, a runtime indirection resulting in a
+performance penalty, a tradeoff for no longer needing instantions
+which is a size optimization)
+
+TODO:
+
+propagate:
+- ActOnCXXMemberDeclarator
+- ActOnStartOfFunctionDef
+
+//===----------------------------------------------------------------------===//
 // C Language Family Front-end
 //===----------------------------------------------------------------------===//
 
