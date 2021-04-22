@@ -865,6 +865,7 @@ ASTContext::getCanonicalTemplateTemplateParmDecl(
                                        nullptr,
                          TemplateParameterList::Create(*this, SourceLocation(),
                                                        SourceLocation(),
+                                                       SourceLocation(),
                                                        CanonParams,
                                                        SourceLocation(),
                                                        CanonRequiresClause));

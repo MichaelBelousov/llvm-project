@@ -5488,6 +5488,7 @@ void ASTRecordWriter::AddNestedNameSpecifierLoc(NestedNameSpecifierLoc NNS) {
 void ASTRecordWriter::AddTemplateParameterList(
     const TemplateParameterList *TemplateParams) {
   assert(TemplateParams && "No TemplateParams!");
+  AddSourceLocation(TemplateParams->getVirtualLoc());
   AddSourceLocation(TemplateParams->getTemplateLoc());
   AddSourceLocation(TemplateParams->getLAngleLoc());
   AddSourceLocation(TemplateParams->getRAngleLoc());

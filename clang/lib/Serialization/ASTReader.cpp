@@ -8803,6 +8803,7 @@ void ASTRecordReader::readQualifierInfo(QualifierInfo &Info) {
 
 TemplateParameterList *
 ASTRecordReader::readTemplateParameterList() {
+  SourceLocation VirtualLoc = readSourceLocation();
   SourceLocation TemplateLoc = readSourceLocation();
   SourceLocation LAngleLoc = readSourceLocation();
   SourceLocation RAngleLoc = readSourceLocation();
@@ -8817,7 +8818,7 @@ ASTRecordReader::readTemplateParameterList() {
   Expr *RequiresClause = HasRequiresClause ? readExpr() : nullptr;
 
   TemplateParameterList *TemplateParams = TemplateParameterList::Create(
-      getContext(), TemplateLoc, LAngleLoc, Params, RAngleLoc, RequiresClause);
+      getContext(), VirtualLoc, TemplateLoc, LAngleLoc, Params, RAngleLoc, RequiresClause);
   return TemplateParams;
 }
 

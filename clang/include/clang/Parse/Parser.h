@@ -3419,6 +3419,7 @@ private:
   ParsedTemplateArgument ParseTemplateArgument();
   Decl *ParseExplicitInstantiation(DeclaratorContext Context,
                                    SourceLocation ExternLoc,
+                                   SourceLocation VirtualLoc,
                                    SourceLocation TemplateLoc,
                                    SourceLocation &DeclEnd,
                                    ParsedAttributes &AccessAttrs,

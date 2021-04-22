@@ -2166,7 +2166,7 @@ struct ConvertConstructorToDeductionGuideTransform {
             SemaRef.Context.getInjectedTemplateArg(NewParam)));
       }
       TemplateParams = TemplateParameterList::Create(
-          SemaRef.Context, InnerParams->getTemplateLoc(),
+          SemaRef.Context, InnerParams->getVirtualLoc(), InnerParams->getTemplateLoc(),
           InnerParams->getLAngleLoc(), AllParams, InnerParams->getRAngleLoc(),
           /*FIXME: RequiresClause*/ nullptr);
     }
@@ -3334,7 +3334,7 @@ TemplateParameterList *Sema::MatchTemplateParametersToScopeSpecifier(
                                                         TemplateId->RAngleLoc));
 
       // Fabricate an empty template parameter list for the invented header.
-      return TemplateParameterList::Create(Context, SourceLocation(),
+      return TemplateParameterList::Create(Context, SourceLocation(), SourceLocation(),
                                            SourceLocation(), None,
                                            SourceLocation(), nullptr);
     }

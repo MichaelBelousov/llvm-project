@@ -940,13 +940,16 @@ Parser::ParseExternalDeclaration(ParsedAttributesWithRange &attrs,
     if (getLangOpts().CPlusPlus && NextToken().is(tok::kw_template)) {
       // Extern templates
       SourceLocation ExternLoc = ConsumeToken();
+      // TODO: it actually should be an error to extern a virtual template
+      SourceLocation VirtualLoc;
+      TryConsumeToken(tok::kw_virtual, VirtualLoc);
       SourceLocation TemplateLoc = ConsumeToken();
       Diag(ExternLoc, getLangOpts().CPlusPlus11 ?
              diag::warn_cxx98_compat_extern_template :
              diag::ext_extern_template) << SourceRange(ExternLoc, TemplateLoc);
       SourceLocation DeclEnd;
       return Actions.ConvertDeclToDeclGroup(ParseExplicitInstantiation(
-          DeclaratorContext::File, ExternLoc, TemplateLoc, DeclEnd, attrs));
+          DeclaratorContext::File, ExternLoc, VirtualLoc, TemplateLoc, DeclEnd, attrs));
     }
     goto dont_know;
 

@@ -197,12 +197,14 @@ public:
 
   bool hasAssociatedConstraints() const;
 
+  SourceLocation getVirtualLoc() const { return VirtualLoc; }
   SourceLocation getTemplateLoc() const { return TemplateLoc; }
   SourceLocation getLAngleLoc() const { return LAngleLoc; }
   SourceLocation getRAngleLoc() const { return RAngleLoc; }
 
   SourceRange getSourceRange() const LLVM_READONLY {
-    return SourceRange(TemplateLoc, RAngleLoc);
+    return SourceRange(VirtualLoc.isValid() ? VirtualLoc : TemplateLoc,
+                       RAngleLoc);
   }
 
   void print(raw_ostream &Out, const ASTContext &Context,

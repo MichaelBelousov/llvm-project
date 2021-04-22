@@ -40,7 +40,8 @@ Decl *Parser::ParseDeclarationStartingWithTemplate(
   ObjCDeclContextSwitch ObjCDC(*this);
 
   if (Tok.is(tok::kw_template) && NextToken().isNot(tok::less)) {
-    return ParseExplicitInstantiation(Context, SourceLocation(), ConsumeToken(),
+    return ParseExplicitInstantiation(Context, SourceLocation(),
+                                      SourceLocation(), ConsumeToken(),
                                       DeclEnd, AccessAttrs, AS);
   }
   return ParseTemplateDeclarationOrSpecialization(Context, DeclEnd, AccessAttrs,
@@ -930,7 +931,7 @@ Parser::ParseTemplateTemplateParameter(unsigned Depth, unsigned Position) {
 
   TemplateParameterList *ParamList =
     Actions.ActOnTemplateParameterList(Depth, SourceLocation(),
-                                       SourceLocation(), TemplateLoc
+                                       SourceLocation(), TemplateLoc,
                                        LAngleLoc, TemplateParams,
                                        RAngleLoc, nullptr);
 
@@ -1604,15 +1605,14 @@ Decl *Parser::ParseExplicitInstantiation(DeclaratorContext Context,
                                          SourceLocation TemplateLoc,
                                          SourceLocation &DeclEnd,
                                          ParsedAttributes &AccessAttrs,
-                                         AccessSpecifier AS, 
-                                         bool IsVirtual) {
+                                         AccessSpecifier AS) {
   // This isn't really required here.
   ParsingDeclRAIIObject
     ParsingTemplateParams(*this, ParsingDeclRAIIObject::NoParent);
 
   return ParseSingleDeclarationAfterTemplate(
       Context, ParsedTemplateInfo(ExternLoc, TemplateLoc),
-      ParsingTemplateParams, DeclEnd, AccessAttrs, AS, IsVirtual);
+      ParsingTemplateParams, DeclEnd, AccessAttrs, AS);
 }
 
 SourceRange Parser::ParsedTemplateInfo::getSourceRange() const {

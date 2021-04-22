@@ -755,6 +755,7 @@ ASTNodeImporter::import(TemplateParameterList *From) {
   if (!ToRequiresClause)
     return ToRequiresClause.takeError();
 
+  auto ToVirtualLocOrErr = import(From->getVirtualLoc());
   auto ToTemplateLocOrErr = import(From->getTemplateLoc());
   if (!ToTemplateLocOrErr)
     return ToTemplateLocOrErr.takeError();
@@ -767,6 +768,7 @@ ASTNodeImporter::import(TemplateParameterList *From) {
 
   return TemplateParameterList::Create(
       Importer.getToContext(),
+      *ToVirtualLocOrErr,
       *ToTemplateLocOrErr,
       *ToLAngleLocOrErr,
       To,

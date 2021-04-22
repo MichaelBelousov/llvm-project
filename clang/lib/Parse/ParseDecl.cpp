@@ -1707,6 +1707,7 @@ Parser::ParseDeclaration(DeclaratorContext Context, SourceLocation &DeclEnd,
   switch (Tok.getKind()) {
   case tok::kw_template:
   case tok::kw_export:
+  case tok::kw_virtual:
     ProhibitAttributes(attrs);
     SingleDecl = ParseDeclarationStartingWithTemplate(Context, DeclEnd, attrs);
     break;
@@ -3674,21 +3675,16 @@ void Parser::ParseDeclarationSpecifiers(DeclSpec &DS,
       isInvalid = DS.setFunctionSpecInline(Loc, PrevSpec, DiagID);
       break;
     case tok::kw_virtual:
-      if (NextToken().is(tok::kw_template)) {
-        ProhibitAttributes(attrs);
-        SingleDecl = ParseDeclarationStartingWithTemplate(Context, DeclEnd, attrs, true);
+      // C++ for OpenCL does not allow virtual function qualifier, to avoid
+      // function pointers restricted in OpenCL v2.0 s6.9.a.
+      if (getLangOpts().OpenCLCPlusPlus &&
+          !getActions().getOpenCLOptions().isAvailableOption(
+              "__cl_clang_function_pointers", getLangOpts())) {
+        DiagID = diag::err_openclcxx_virtual_function;
+        PrevSpec = Tok.getIdentifierInfo()->getNameStart();
+        isInvalid = true;
       } else {
-        // C++ for OpenCL does not allow virtual function qualifier, to avoid
-        // function pointers restricted in OpenCL v2.0 s6.9.a.
-        if (getLangOpts().OpenCLCPlusPlus &&
-            !getActions().getOpenCLOptions().isAvailableOption(
-                "__cl_clang_function_pointers", getLangOpts())) {
-          DiagID = diag::err_openclcxx_virtual_function;
-          PrevSpec = Tok.getIdentifierInfo()->getNameStart();
-          isInvalid = true;
-        } else {
-          isInvalid = DS.setFunctionSpecVirtual(Loc, PrevSpec, DiagID);
-        }
+        isInvalid = DS.setFunctionSpecVirtual(Loc, PrevSpec, DiagID);
       }
       break;
     case tok::kw_explicit: {

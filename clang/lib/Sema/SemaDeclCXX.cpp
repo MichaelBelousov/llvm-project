@@ -17919,14 +17919,14 @@ void Sema::ActOnFinishFunctionDeclarationDeclarator(Declarator &Declarator) {
           Declarator.getTemplateParameterLists().back();
       Declarator.setInventedTemplateParameterList(
           TemplateParameterList::Create(
-              Context, ExplicitParams->getTemplateLoc(),
+              Context, ExplicitParams->getVirtualLoc(), ExplicitParams->getTemplateLoc(),
               ExplicitParams->getLAngleLoc(), FSI.TemplateParams,
               ExplicitParams->getRAngleLoc(),
               ExplicitParams->getRequiresClause()));
     } else {
       Declarator.setInventedTemplateParameterList(
           TemplateParameterList::Create(
-              Context, SourceLocation(), SourceLocation(), FSI.TemplateParams,
+              Context, SourceLocation(), SourceLocation(), SourceLocation(), FSI.TemplateParams,
               SourceLocation(), /*RequiresClause=*/nullptr));
     }
   }

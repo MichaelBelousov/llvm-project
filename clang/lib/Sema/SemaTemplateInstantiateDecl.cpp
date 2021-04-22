@@ -1955,7 +1955,7 @@ Decl *TemplateDeclInstantiator::VisitFunctionDecl(
       // not having a type constraint. Recreate the TemplateParameterList with
       // the updated parameter list.
       TemplateParams = TemplateParameterList::Create(
-          SemaRef.Context, TemplateParams->getTemplateLoc(),
+          SemaRef.Context, TemplateParams->getVirtualLoc(), TemplateParams->getTemplateLoc(),
           TemplateParams->getLAngleLoc(), TemplateParams->asArray(),
           TemplateParams->getRAngleLoc(), TemplateParams->getRequiresClause());
     }
@@ -2298,7 +2298,7 @@ Decl *TemplateDeclInstantiator::VisitCXXMethodDecl(
       // not having a type constraint. Recreate the TemplateParameterList with
       // the updated parameter list.
       TemplateParams = TemplateParameterList::Create(
-          SemaRef.Context, TemplateParams->getTemplateLoc(),
+          SemaRef.Context, TemplateParams->getVirtualLoc(), TemplateParams->getTemplateLoc(),
           TemplateParams->getLAngleLoc(), TemplateParams->asArray(),
           TemplateParams->getRAngleLoc(), TemplateParams->getRequiresClause());
     }
@@ -3878,7 +3878,7 @@ TemplateDeclInstantiator::SubstTemplateParams(TemplateParameterList *L) {
   }
 
   TemplateParameterList *InstL
-    = TemplateParameterList::Create(SemaRef.Context, L->getTemplateLoc(),
+    = TemplateParameterList::Create(SemaRef.Context, L->getVirtualLoc(), L->getTemplateLoc(),
                                     L->getLAngleLoc(), Params,
                                     L->getRAngleLoc(), InstRequiresClause);
   return InstL;

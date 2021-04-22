@@ -8636,6 +8636,7 @@ Sema::ActOnCompoundRequirement(
 
   auto *TPL = TemplateParameterList::Create(Context, SourceLocation(),
                                             SourceLocation(),
+                                            SourceLocation(),
                                             ArrayRef<NamedDecl *>(TParam),
                                             SourceLocation(),
                                             /*RequiresClause=*/nullptr);
