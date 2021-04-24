@@ -178,7 +178,15 @@ namespace clang {
     /// This template specialization was instantiated from a template
     /// due to an explicit instantiation definition request
     /// (C++ [temp.explicit]).
-    TSK_ExplicitInstantiationDefinition
+    TSK_ExplicitInstantiationDefinition,
+    /// This template specialization was instantiated from a template
+    /// due to an explicit instantiation definition request
+    /// (C++ [temp.explicit]).
+    TSK_VirtualInstantiationDeclaration,
+    /// This template specialization was instantiated from a template
+    /// due to an explicit instantiation definition request
+    /// (C++ [temp.explicit]).
+    TSK_VirtualInstantiationDefinition
   };
 
   /// Determine whether this template specialization kind refers

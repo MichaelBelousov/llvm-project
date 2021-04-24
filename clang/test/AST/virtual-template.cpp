@@ -7,7 +7,7 @@
 // RUN: | sed -e "s/ <undeserialized declarations>//" -e "s/ imported//" \
 // RUN: | FileCheck %s
 
-virtual template<typename T>
+template<typename T>
 void f(T t) {
   T a[] = {t};
   for (auto x : a) {}
